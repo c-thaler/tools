@@ -4,8 +4,12 @@
 #include <pthread.h>
 
 
-#define VTRACE_OFF __attribute__((__no_instrument_function__))
+extern void moin(void);
+#define SHARED_LIB_FUNC moin
 
+#define VTRACE_OFF __attribute__((__no_instrument_function__))
+#define STR(x) #x
+#define EVAL(x,y) x(y)
 
 static FILE *tf = NULL;
 
@@ -30,10 +34,16 @@ static void VTRACE_OFF vtrace_exit()
 
 static void VTRACE_OFF vtrace_init()
 {
-	tf = fopen("test.vtrc", "a");
+	tf = fopen("test.vtrc", "w");
 
 	fprintf(tf, "VTRACE\n");
 	fprintf(tf,"date:now :o)\n");
+
+#ifdef SHARED_LIB_FUNC
+	fprintf(tf,"mapping: %s %p\n", EVAL(STR,SHARED_LIB_FUNC), moin);
+#endif
+
+	fprintf(tf,"data:\n");
 
 	atexit(vtrace_exit);
 }

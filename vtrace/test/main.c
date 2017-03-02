@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+extern void moin(void);
+
 void lol()
 {
 	printf("lol\n");
@@ -19,4 +21,6 @@ void main()
 	rofl();
 	rofl();
 	lol();
+
+	moin();
 }

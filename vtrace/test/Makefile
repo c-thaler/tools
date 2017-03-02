@@ -1,13 +1,23 @@
 TARGET := test
+STARGET := libshared.so
 OBJ := \
 	main.o \
 	../src/cvtrace.o
 
-CFLAGS += -finstrument-functions -g3
+SOBJ := \
+	shared.o
 
-$(TARGET) : $(OBJ)
-	$(CC) -o $@ -lpthread $^
+CFLAGS += -finstrument-functions -g3 -fPIC
+
+$(TARGET) : $(OBJ) $(STARGET)
+	$(CC) -o $@ -L./ -lpthread $(OBJ) -lshared
+
+$(STARGET) : $(SOBJ)
+	$(CC) --shared -o $@ $^
+
+.PHONY:
+all : $(TARGET)
 
 .PHONY:
 clean :
-	rm $(OBJ) $(TARGET)
+	rm $(OBJ)i $(SOBJ) $(TARGET) $(STARGET)
