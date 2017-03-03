@@ -3,9 +3,8 @@
 
 #include <pthread.h>
 
-
-extern void moin(void);
-#define SHARED_LIB_FUNC moin
+#define BUFFER_SIZE (256*1024*1024)
+#define SHARED_LIB_FUNC __cyg_profile_func_enter
 
 #define VTRACE_OFF __attribute__((__no_instrument_function__))
 #define STR(x) #x
@@ -34,13 +33,21 @@ static void VTRACE_OFF vtrace_exit()
 
 static void VTRACE_OFF vtrace_init()
 {
-	tf = fopen("test.vtrc", "w");
+	char *buffer;
+	tf = fopen("test.vtrc", "w");	
+
+	buffer = malloc(BUFFER_SIZE);
+
+	if(!buffer)
+		printf("[VTRACE] Could not allocate buffer.\n");
+
+	setbuf(tf, buffer); 
 
 	fprintf(tf, "VTRACE\n");
 	fprintf(tf,"date:now :o)\n");
 
 #ifdef SHARED_LIB_FUNC
-	fprintf(tf,"mapping: %s %p\n", EVAL(STR,SHARED_LIB_FUNC), moin);
+	fprintf(tf,"mapping: %s %p\n", EVAL(STR,SHARED_LIB_FUNC), SHARED_LIB_FUNC);
 #endif
 
 	fprintf(tf,"data:\n");
